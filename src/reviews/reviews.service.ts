@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { AuthService } from 'src/auth/auth.service';
+import { UserDocument } from 'src/auth/user.model';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { REVIEW_NOT_FOUND } from './review.constants';
 import { Review, ReviewDocument } from './reviews.model';
 
 @Injectable()
 export class ReviewsService {
 	constructor(
 		@InjectModel(Review.name) private reviewMovel: Model<ReviewDocument>,
+		private readonly authService: AuthService,
 	) {}
 
 	async createReview(dto: CreateReviewDto): Promise<Review> {
@@ -15,12 +19,69 @@ export class ReviewsService {
 	}
 
 	async findByAnime(animeId: string) {
-		return this.reviewMovel.find({ animeId }).exec();
+		return this.reviewMovel
+			.aggregate([
+				{
+					$match:{
+						animeId: Number(animeId),
+					}
+				},
+				{
+					$sort: {
+						createdAt: -1,
+					},
+				},
+				{
+					$addFields: {
+						likes: { $size: { $ifNull: ['$likedBy', []] } },
+						dislikes: { $size: { $ifNull: ['$dislikedBy', []] } },
+					},
+				},
+			])
+			.exec();
 	}
 
-	async likeById(id: string) {
-		return this.reviewMovel
-			.findByIdAndUpdate(id, { $inc: { likes: 1 } }, { new: true })
+	async likeById(id: string, user: UserDocument) {
+		await this.reviewMovel
+			.findByIdAndUpdate(
+				id,
+				{ $pull: { dislikedBy: user._id } },
+				{ new: true },
+			)
 			.exec();
+		const likedComment = await this.reviewMovel
+			.findByIdAndUpdate(
+				id,
+				{ $addToSet: { likedBy: user._id } },
+				{ new: true },
+			)
+			.exec();
+		if (!likedComment) {
+			throw new NotFoundException(REVIEW_NOT_FOUND);
+		}
+		await this.authService.addLikedComment(user._id, likedComment._id);
+		return likedComment;
+	}
+
+	async disLikeById(id: string, user: UserDocument) {
+		await this.reviewMovel
+			.findByIdAndUpdate(
+				id,
+				{ $pull: { likedBy: user._id } },
+				{ new: true },
+			)
+			.exec();
+		const likedComment = await this.reviewMovel
+			.findByIdAndUpdate(
+				id,
+				{ $addToSet: { dislikedBy: user._id } },
+				{ new: true },
+			)
+			.exec();
+		if (!likedComment) {
+			throw new NotFoundException(REVIEW_NOT_FOUND);
+		}
+		await this.authService.addDisLikedComment(user._id, likedComment._id);
+		return likedComment;
 	}
 }

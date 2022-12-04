@@ -2,16 +2,22 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Get,
 	HttpCode,
+	NotFoundException,
+	Param,
 	Post,
+	Sse,
 	UseGuards,
 	UsePipes,
 	ValidationPipe,
 } from '@nestjs/common';
+import { interval, map, Observable } from 'rxjs';
 import { User } from 'src/decorators/user.decorator';
 import {
 	ALREADY_REGISTERED_EMAIL_ERROR,
 	ALREADY_REGISTERED_USERNAME_ERROR,
+	USER_NOT_FOUND_ERROR,
 } from './auth.constants';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
@@ -51,10 +57,29 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	@Post('notes/add')
 	@HttpCode(201)
-	async addToNotes(
-		@Body() dto: UserNoteDto,
-		@User() user: UserDocument,
-	) {
+	async addToNotes(@Body() dto: UserNoteDto, @User() user: UserDocument) {
 		return this.authService.addNotesById(user._id, dto);
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('user')
+	async getUser(@User() user: UserDocument) {
+		return this.authService.getUserById(user._id);
+	}
+
+	@Sse('sse/:email/:password')
+	async sse(
+		@Param('email') email: string,
+		@Param('password') password: string,
+	): Promise<Observable<MessageEvent>> {
+		const userData = await this.authService.validateUser(email, password);
+		return interval(50).pipe(
+			map(
+				(_) =>
+					({
+						data: userData,
+					} as MessageEvent),
+			),
+		);
 	}
 }

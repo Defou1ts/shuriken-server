@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { isValidObjectId, Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { UserDocument } from 'src/auth/user.model';
 import { User } from 'src/decorators/user.decorator';
 import { IdValidationPipe } from 'src/pipes/id-validation.pipe';
 import { UserIdValidationPipe } from 'src/pipes/userId-validation.pipe';
@@ -35,8 +36,21 @@ export class ReviewsController {
 		return this.reviewService.findByAnime(animeId);
 	}
 
-	@Get('like/:id')
-	async likeById(@Param('id', IdValidationPipe) id: string) {
-		return this.reviewService.likeById(id);
+	@UseGuards(JwtAuthGuard)
+	@Post('like/:id')
+	async likeById(
+		@Param('id', IdValidationPipe) id: string,
+		@User() user: UserDocument,
+	) {
+		return this.reviewService.likeById(id, user);
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('disLike/:id')
+	async disLikeById(
+		@Param('id', IdValidationPipe) id: string,
+		@User() user: UserDocument,
+	) {
+		return this.reviewService.disLikeById(id, user);
 	}
 }

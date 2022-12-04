@@ -28,6 +28,10 @@ export class AuthService {
 		return userData;
 	}
 
+	async getUserById(id: string) {
+		return this.userModel.findById(id);
+	}
+
 	async findUserByEmail(email: string) {
 		return this.userModel.findOne({ email }).exec();
 	}
@@ -62,6 +66,40 @@ export class AuthService {
 
 	async updateImageById(id: string, image: string) {
 		return this.userModel.findByIdAndUpdate(id, { image }, { new: true });
+	}
+
+	async addLikedComment(userId: string, commentId: string) {
+		await this.userModel.findByIdAndUpdate(
+			userId,
+			{
+				$pull: { disLikedComments: commentId },
+			},
+			{ new: true },
+		);
+		await this.userModel.findByIdAndUpdate(
+			userId,
+			{
+				$addToSet: { likedComments: commentId },
+			},
+			{ new: true },
+		);
+	}
+
+	async addDisLikedComment(userId: string, commentId: string) {
+		await this.userModel.findByIdAndUpdate(
+			userId,
+			{
+				$pull: { likedComments: commentId },
+			},
+			{ new: true },
+		);
+		await this.userModel.findByIdAndUpdate(
+			userId,
+			{
+				$addToSet: { disLikedComments: commentId },
+			},
+			{ new: true },
+		);
 	}
 
 	async addNotesById(id: string, dto: UserNoteDto) {

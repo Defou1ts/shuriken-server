@@ -65,11 +65,14 @@ export class User {
 	@Prop()
 	passwordHash: string;
 
-	@Prop({ default: []})
+	@Prop({ default: [] })
 	notes: Note[];
 
 	@Prop({ default: [] })
 	likedComments: Types.ObjectId[];
+
+	@Prop({ default: [] })
+	disLikedComments: Types.ObjectId[];
 
 	@Prop({ default: new Date() })
 	createdAt: Date = new Date();

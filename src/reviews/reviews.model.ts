@@ -3,10 +3,18 @@ import { Document, Types } from 'mongoose';
 
 export type ReviewDocument = Review & Document;
 
+export class fromData {
+	@Prop()
+	username: string;
+
+	@Prop()
+	image: string;
+}
+
 @Schema()
 export class Review {
 	@Prop()
-	userId: Types.ObjectId;
+	from: fromData;
 
 	@Prop()
 	animeId: number;

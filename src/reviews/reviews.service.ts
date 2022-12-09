@@ -5,7 +5,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserDocument } from 'src/auth/user.model';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { REVIEW_NOT_FOUND } from './review.constants';
-import { Review, ReviewDocument } from './reviews.model';
+import { fromData, Review, ReviewDocument } from './reviews.model';
 
 @Injectable()
 export class ReviewsService {
@@ -14,27 +14,30 @@ export class ReviewsService {
 		private readonly authService: AuthService,
 	) {}
 
-	async createReview(dto: CreateReviewDto): Promise<Review> {
-		return this.reviewMovel.create(dto);
+	async createReview(
+		dto: CreateReviewDto,
+		fromData: fromData,
+	): Promise<Review> {
+		return this.reviewMovel.create({ ...dto, from: fromData });
 	}
 
 	async findByAnime(animeId: string) {
 		return this.reviewMovel
 			.aggregate([
 				{
-					$match:{
+					$match: {
 						animeId: Number(animeId),
-					}
-				},
-				{
-					$sort: {
-						createdAt: -1,
 					},
 				},
 				{
 					$addFields: {
 						likes: { $size: { $ifNull: ['$likedBy', []] } },
 						dislikes: { $size: { $ifNull: ['$dislikedBy', []] } },
+					},
+				},
+				{
+					$sort: {
+						_id: -1,
 					},
 				},
 			])

@@ -18,6 +18,7 @@ import { IdValidationPipe } from 'src/pipes/id-validation.pipe';
 import { UserIdValidationPipe } from 'src/pipes/userId-validation.pipe';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { INVALID_REVIEW_ID, REVIEW_NOT_FOUND } from './review.constants';
+import { fromData } from './reviews.model';
 import { ReviewsService } from './reviews.service';
 
 @Controller('reviews')
@@ -27,8 +28,12 @@ export class ReviewsController {
 	@UseGuards(JwtAuthGuard)
 	@HttpCode(201)
 	@Post('create')
-	async create(@Body(UserIdValidationPipe) dto: CreateReviewDto) {
-		return this.reviewService.createReview(dto);
+	async create(@Body() dto: CreateReviewDto, @User() user: UserDocument) {
+		const fromData: fromData = {
+			username: user.username,
+			image: user.image,
+		};
+		return this.reviewService.createReview(dto, fromData);
 	}
 
 	@Get('byAnime/:animeId')

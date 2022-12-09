@@ -67,6 +67,12 @@ export class AuthController {
 		return this.authService.getUserById(user._id);
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Get('verifyEmail')
+	async verifyEmail(@User() user: UserDocument) {
+		return this.authService.verifyUser(user._id);
+	}
+
 	@Sse('sse/:email/:password')
 	async sse(
 		@Param('email') email: string,

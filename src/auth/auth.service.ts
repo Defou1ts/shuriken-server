@@ -44,6 +44,14 @@ export class AuthService {
 		return this.userModel.findOne({ $or: [{ username }, { email }] });
 	}
 
+	async verifyUser(id: string) {
+		return this.userModel.findByIdAndUpdate(
+			id,
+			{ isVerifiedEmail: true },
+			{ new: true },
+		);
+	}
+
 	async validateUser(email: string, password: string) {
 		const user = await this.findUserByEmail(email);
 		if (!user) {

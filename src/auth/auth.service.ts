@@ -28,6 +28,16 @@ export class AuthService {
 		return userData;
 	}
 
+	async changeUserPasswordById(password: string, id: string) {
+		const salt = await genSalt(10);
+		const passwordHash = await hash(password, salt);
+		return this.userModel.findByIdAndUpdate(
+			id,
+			{ passwordHash },
+			{ new: true },
+		);
+	}
+
 	async getUserById(id: string) {
 		return this.userModel.findById(id);
 	}

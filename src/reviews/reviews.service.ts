@@ -36,6 +36,14 @@ export class ReviewsService {
 					},
 				},
 				{
+					$lookup: {
+						from:'users',
+						localField:'from.username',
+						foreignField:'username',
+						as: 'from'
+					}
+				},
+				{
 					$sort: {
 						_id: -1,
 					},

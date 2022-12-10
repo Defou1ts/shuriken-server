@@ -82,6 +82,15 @@ export class AuthController {
 		return this.authService.changeUserPasswordById(password, user._id);
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Post('validatePassword/:password')
+	async validatePassword(
+		@Param('password') password: string,
+		@User() user: UserDocument,
+	) {
+		return this.authService.validateUser(user.email, password);
+	}
+
 	@Sse('sse/:email/:password')
 	async sse(
 		@Param('email') email: string,

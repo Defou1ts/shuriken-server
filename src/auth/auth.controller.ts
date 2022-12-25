@@ -37,9 +37,7 @@ export class AuthController {
 		if (oldEmailUser) {
 			throw new BadRequestException(ALREADY_REGISTERED_EMAIL_ERROR);
 		}
-		const oldUsernameUser = await this.authService.findUserByUsername(
-			dto.username,
-		);
+		const oldUsernameUser = await this.authService.findUserByUsername(dto.username);
 		if (oldUsernameUser) {
 			throw new BadRequestException(ALREADY_REGISTERED_USERNAME_ERROR);
 		}
@@ -49,7 +47,6 @@ export class AuthController {
 	@HttpCode(200)
 	@Post('login')
 	async login(@Body() { email, password }: LoginDto) {
-		console.log(email);
 		const userData = await this.authService.validateUser(email, password);
 		return this.authService.login(userData);
 	}
@@ -75,27 +72,18 @@ export class AuthController {
 
 	@UseGuards(JwtAuthGuard)
 	@Post('changePassword/:password')
-	async changePassword(
-		@Param('password') password: string,
-		@User() user: UserDocument,
-	) {
+	async changePassword(@Param('password') password: string, @User() user: UserDocument) {
 		return this.authService.changeUserPasswordById(password, user._id);
 	}
 
 	@UseGuards(JwtAuthGuard)
 	@Post('validatePassword/:password')
-	async validatePassword(
-		@Param('password') password: string,
-		@User() user: UserDocument,
-	) {
+	async validatePassword(@Param('password') password: string, @User() user: UserDocument) {
 		return this.authService.validateUser(user.email, password);
 	}
 
 	@Sse('sse/:email/:password')
-	async sse(
-		@Param('email') email: string,
-		@Param('password') password: string,
-	): Promise<Observable<MessageEvent>> {
+	async sse(@Param('email') email: string, @Param('password') password: string): Promise<Observable<MessageEvent>> {
 		const userData = await this.authService.validateUser(email, password);
 		return interval(50).pipe(
 			map(

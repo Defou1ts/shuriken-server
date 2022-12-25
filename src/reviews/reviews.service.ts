@@ -14,10 +14,7 @@ export class ReviewsService {
 		private readonly authService: AuthService,
 	) {}
 
-	async createReview(
-		dto: CreateReviewDto,
-		fromData: fromData,
-	): Promise<Review> {
+	async createReview(dto: CreateReviewDto, fromData: fromData): Promise<Review> {
 		return this.reviewMovel.create({ ...dto, from: fromData });
 	}
 
@@ -37,11 +34,11 @@ export class ReviewsService {
 				},
 				{
 					$lookup: {
-						from:'users',
-						localField:'from.username',
-						foreignField:'username',
-						as: 'from'
-					}
+						from: 'users',
+						localField: 'from.username',
+						foreignField: 'username',
+						as: 'from',
+					},
 				},
 				{
 					$sort: {
@@ -53,19 +50,9 @@ export class ReviewsService {
 	}
 
 	async likeById(id: string, user: UserDocument) {
-		await this.reviewMovel
-			.findByIdAndUpdate(
-				id,
-				{ $pull: { dislikedBy: user._id } },
-				{ new: true },
-			)
-			.exec();
+		await this.reviewMovel.findByIdAndUpdate(id, { $pull: { dislikedBy: user._id } }, { new: true }).exec();
 		const likedComment = await this.reviewMovel
-			.findByIdAndUpdate(
-				id,
-				{ $addToSet: { likedBy: user._id } },
-				{ new: true },
-			)
+			.findByIdAndUpdate(id, { $addToSet: { likedBy: user._id } }, { new: true })
 			.exec();
 		if (!likedComment) {
 			throw new NotFoundException(REVIEW_NOT_FOUND);
@@ -75,19 +62,9 @@ export class ReviewsService {
 	}
 
 	async disLikeById(id: string, user: UserDocument) {
-		await this.reviewMovel
-			.findByIdAndUpdate(
-				id,
-				{ $pull: { likedBy: user._id } },
-				{ new: true },
-			)
-			.exec();
+		await this.reviewMovel.findByIdAndUpdate(id, { $pull: { likedBy: user._id } }, { new: true }).exec();
 		const likedComment = await this.reviewMovel
-			.findByIdAndUpdate(
-				id,
-				{ $addToSet: { dislikedBy: user._id } },
-				{ new: true },
-			)
+			.findByIdAndUpdate(id, { $addToSet: { dislikedBy: user._id } }, { new: true })
 			.exec();
 		if (!likedComment) {
 			throw new NotFoundException(REVIEW_NOT_FOUND);

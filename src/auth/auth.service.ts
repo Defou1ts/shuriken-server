@@ -31,11 +31,7 @@ export class AuthService {
 	async changeUserPasswordById(password: string, id: string) {
 		const salt = await genSalt(10);
 		const passwordHash = await hash(password, salt);
-		return this.userModel.findByIdAndUpdate(
-			id,
-			{ passwordHash },
-			{ new: true },
-		);
+		return this.userModel.findByIdAndUpdate(id, { passwordHash }, { new: true });
 	}
 
 	async getUserById(id: string) {
@@ -55,11 +51,7 @@ export class AuthService {
 	}
 
 	async verifyUser(id: string) {
-		return this.userModel.findByIdAndUpdate(
-			id,
-			{ isVerifiedEmail: true },
-			{ new: true },
-		);
+		return this.userModel.findByIdAndUpdate(id, { isVerifiedEmail: true }, { new: true });
 	}
 
 	async validateUser(email: string, password: string) {

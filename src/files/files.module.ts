@@ -11,7 +11,7 @@ import { FilesService } from './files.service';
 			rootPath: `${path}/src/assets/users`,
 			serveRoot: '/static',
 		}),
-		AuthModule
+		AuthModule,
 	],
 	controllers: [FilesController],
 	providers: [FilesService],

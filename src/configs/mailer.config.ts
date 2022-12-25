@@ -1,9 +1,7 @@
 import { MailerOptions } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 
-export const getMailerConfig = async (
-	configService: ConfigService,
-): Promise<MailerOptions> => {
+export const getMailerConfig = async (configService: ConfigService): Promise<MailerOptions> => {
 	return {
 		transport: {
 			host: 'smtp.sendgrid.net',

@@ -17,9 +17,7 @@ export class FilesService {
 		return this.authService.updateImageById(user._id, file.originalname);
 	}
 
-	async convertToWebP(
-		file: Express.Multer.File,
-	): Promise<Express.Multer.File> {
+	async convertToWebP(file: Express.Multer.File): Promise<Express.Multer.File> {
 		file.buffer = await sharp(file.buffer).webp().toBuffer();
 		return file;
 	}

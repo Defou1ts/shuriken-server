@@ -43,19 +43,13 @@ export class ReviewsController {
 
 	@UseGuards(JwtAuthGuard)
 	@Post('like/:id')
-	async likeById(
-		@Param('id', IdValidationPipe) id: string,
-		@User() user: UserDocument,
-	) {
+	async likeById(@Param('id', IdValidationPipe) id: string, @User() user: UserDocument) {
 		return this.reviewService.likeById(id, user);
 	}
 
 	@UseGuards(JwtAuthGuard)
 	@Post('disLike/:id')
-	async disLikeById(
-		@Param('id', IdValidationPipe) id: string,
-		@User() user: UserDocument,
-	) {
+	async disLikeById(@Param('id', IdValidationPipe) id: string, @User() user: UserDocument) {
 		return this.reviewService.disLikeById(id, user);
 	}
 }

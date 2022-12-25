@@ -13,7 +13,7 @@ import { ReviewsService } from './reviews.service';
 				schema: ReviewModel,
 			},
 		]),
-		AuthModule
+		AuthModule,
 	],
 	controllers: [ReviewsController],
 	providers: [ReviewsService],
